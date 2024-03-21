@@ -185,6 +185,7 @@ class Diffable:
         other: Union[DiffConstants, "Tree", "Commit", str, None] = INDEX,
         paths: Union[PathLike, List[PathLike], Tuple[PathLike, ...], None] = None,
         create_patch: bool = False,
+        lines_of_context: int = 3,
         **kwargs: Any,
     ) -> "DiffIndex":
         """Create diffs between two items being trees, trees and index or an index and
@@ -214,6 +215,10 @@ class Diffable:
             applied makes the self to other. Patches are somewhat costly as blobs have
             to be read and diffed.
 
+        :param line_of_context:
+            Default 3. Specify the lines of context before and after each change 
+            introduced in the patch. This cooresponds to the -U flag for git diff.
+
         :param kwargs:
             Additional arguments passed to :manpage:`git-diff(1)`, such as ``R=True`` to
             swap both sides of the diff.
@@ -240,6 +245,9 @@ class Diffable:
         else:
             args.append("--raw")
             args.append("-z")
+
+        if lines_of_context:
+            args.append(f"-U{lines_of_context}")
 
         # Ensure we never see colored output.
         # Fixes: https://github.com/gitpython-developers/GitPython/issues/172
